@@ -1,0 +1,14 @@
+<div class="dialog-overlay" *ngIf="activeDialog">
+  <div class="dialog-box">
+    <div class="dialog-header">
+      <span class="dialog-title">{{ activeDialog.title || 'MENSAJE TESE' }}</span>
+    </div>
+    <div class="dialog-body">
+      <p class="dialog-message">{{ activeDialog.message }}</p>
+    </div>
+    <div class="dialog-footer">
+      <button class="dialog-btn confirm-btn" (click)="onConfirm()">ACEPTAR</button>
+      <button class="dialog-btn cancel-btn" *ngIf="activeDialog.type === 'confirm'" (click)="onCancel()">CANCELAR</button>
+    </div>
+  </div>
+</div>

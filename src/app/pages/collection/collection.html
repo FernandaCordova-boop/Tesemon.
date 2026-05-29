@@ -1,0 +1,217 @@
+<div class="dex-page">
+
+  <!-- ░░ FONDO AMBIENTAL ░░ -->
+  <div class="dex-bg-glow"></div>
+  <div class="dex-bg-grid"></div>
+
+  <!-- ░░ POKÉDEX BODY ░░ -->
+  <div class="dex-body">
+
+    <!-- ══ PANEL SUPERIOR ══ -->
+    <div class="dex-top">
+
+      <!-- Esquina redondeada izquierda con lente -->
+      <div class="dex-top-left">
+        <div class="big-lens">
+          <div class="bl-outer"></div>
+          <div class="bl-mid"></div>
+          <div class="bl-inner">
+            <div class="bl-shine"></div>
+            <div class="bl-shine2"></div>
+          </div>
+        </div>
+        <div class="small-lights">
+          <div class="sl red"></div>
+          <div class="sl yellow"></div>
+          <div class="sl green"></div>
+        </div>
+      </div>
+
+      <!-- Pantalla principal -->
+      <div class="dex-screen-wrap">
+        <div class="dex-screen-bezel">
+
+          <!-- Barra de título de la pantalla -->
+          <div class="screen-topbar">
+            <div class="topbar-left">
+              <div class="tb-dot tb-dot-r"></div>
+              <div class="tb-dot tb-dot-y"></div>
+              <div class="tb-dot tb-dot-g"></div>
+            </div>
+            <span class="topbar-title">POKÉDEX — MI COLECCIÓN</span>
+            <span class="topbar-count">{{ cards.length }} REGISTROS</span>
+          </div>
+
+          <!-- Contenido de pantalla -->
+          <div class="screen-inner">
+
+            <!-- LOADING -->
+            <div *ngIf="loading" class="dex-loading">
+              <div class="dex-pokeball-spin">
+                <div class="dpb-top"></div>
+                <div class="dpb-band"><div class="dpb-btn"></div></div>
+                <div class="dpb-bot"></div>
+              </div>
+              <p class="dex-loading-text">ANALIZANDO DATOS...</p>
+              <div class="dex-loading-bar"><div class="dex-loading-fill"></div></div>
+            </div>
+
+            <!-- GRID DE CARTAS -->
+            <div *ngIf="!loading" class="cards-grid">
+              <div
+                class="tcg-card"
+                *ngFor="let card of cards"
+                [ngClass]="['type-bg-' + card.types[0], 'rarity-' + (card.level | lowercase)]"
+              >
+                <!-- Capa foil holográfica -->
+                <div class="foil-layer"></div>
+                <!-- Brillo de rareza -->
+                <div class="rarity-glow"></div>
+
+                <!-- Cabecera de carta -->
+                <div class="tcg-header">
+                  <div class="tcg-header-left">
+                    <span class="tcg-name">{{ card.name | titlecase }}</span>
+                    <div class="tcg-types">
+                      <span class="tcg-type-pip" [ngClass]="'pip-' + card.types[0]"></span>
+                      <span *ngIf="card.types[1]" class="tcg-type-pip" [ngClass]="'pip-' + card.types[1]"></span>
+                      <span class="tcg-type-label">{{ card.types[0] | titlecase }}</span>
+                    </div>
+                  </div>
+                  <div class="tcg-hp-block">
+                    <span class="tcg-hp-val">{{ card.hp }}</span>
+                    <span class="tcg-hp-tag">HP</span>
+                  </div>
+                </div>
+
+                <!-- Ilustración -->
+                <div class="tcg-illus">
+                  <div class="illus-bg"></div>
+                  <div class="illus-scanline"></div>
+                  <img [src]="card.image" [alt]="card.name" class="tcg-img" loading="lazy" />
+                  <div class="illus-vignette"></div>
+                  <div class="illus-number">#{{ card.id.toString().padStart(3,'0') }}</div>
+                </div>
+
+                <!-- Separador decorativo -->
+                <div class="tcg-divider">
+                  <div class="div-line"></div>
+                  <div class="div-diamond"></div>
+                  <div class="div-line"></div>
+                </div>
+
+                <!-- Habilidad -->
+                <div class="tcg-ability">
+                  <div class="ability-header">
+                    <span class="ability-icon">◆</span>
+                    <span class="ability-title">{{ card.specialAbility }}</span>
+                  </div>
+                  <p class="ability-desc">{{ card.description }}</p>
+                </div>
+
+                <!-- Stats -->
+                <div class="tcg-stats">
+                  <div class="tcg-stat">
+                    <span class="ts-icon">⚔</span>
+                    <div class="ts-bar-wrap">
+                      <div class="ts-bar atk-bar" [style.width.%]="(card.attack / 200) * 100"></div>
+                    </div>
+                    <span class="ts-val">{{ card.attack }}</span>
+                  </div>
+                  <div class="tcg-stat">
+                    <span class="ts-icon">🛡</span>
+                    <div class="ts-bar-wrap">
+                      <div class="ts-bar def-bar" [style.width.%]="(card.defense / 200) * 100"></div>
+                    </div>
+                    <span class="ts-val">{{ card.defense }}</span>
+                  </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="tcg-footer">
+                  <div class="tcg-rarity-stars">
+                    <span class="rstar" *ngFor="let s of getRarityStars(card.level)">★</span>
+                    <span class="rstar empty" *ngFor="let s of getEmptyStars(card.level)">☆</span>
+                  </div>
+                  <span class="tcg-rarity-label">{{ card.level | uppercase }}</span>
+                </div>
+
+              </div>
+            </div>
+
+          </div><!-- /screen-inner -->
+        </div><!-- /dex-screen-bezel -->
+      </div><!-- /dex-screen-wrap -->
+
+      <!-- Esquina superior derecha decorativa -->
+      <div class="dex-top-right">
+        <div class="dex-speaker">
+          <div class="sp-line"></div>
+          <div class="sp-line"></div>
+          <div class="sp-line"></div>
+          <div class="sp-line"></div>
+          <div class="sp-line"></div>
+          <div class="sp-line"></div>
+        </div>
+      </div>
+
+    </div><!-- /dex-top -->
+
+    <!-- ══ BISAGRA ══ -->
+    <div class="dex-hinge">
+      <div class="hinge-left-cap"></div>
+      <div class="hinge-groove"></div>
+      <div class="hinge-right-cap"></div>
+    </div>
+
+    <!-- ══ PANEL INFERIOR ══ -->
+    <div class="dex-bottom">
+
+      <!-- Controles izquierda -->
+      <div class="dex-controls-left">
+        <div class="dpad-wrap">
+          <div class="dpad-cross">
+            <div class="dpad-v"></div>
+            <div class="dpad-h"></div>
+            <div class="dpad-center"></div>
+          </div>
+        </div>
+        <a class="dex-back-btn" routerLink="/">
+          <span>◀</span> VOLVER
+        </a>
+      </div>
+
+      <!-- Pantalla inferior pequeña -->
+      <div class="dex-bottom-screen">
+        <div class="dbs-inner">
+          <div class="dbs-pokeball">
+            <div class="dpb2-top"></div>
+            <div class="dpb2-band"><div class="dpb2-btn"></div></div>
+            <div class="dpb2-bot"></div>
+          </div>
+          <div class="dbs-text">
+            <span class="dbs-title">POKÉDEX</span>
+            <span class="dbs-sub">NACIONAL</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controles derecha -->
+      <div class="dex-controls-right">
+        <div class="action-cluster">
+          <button class="ac-btn ac-a">A</button>
+          <button class="ac-btn ac-b">B</button>
+          <button class="ac-btn ac-x">X</button>
+          <button class="ac-btn ac-y">Y</button>
+        </div>
+        <div class="start-select">
+          <button class="ss-btn">SELECT</button>
+          <button class="ss-btn">START</button>
+        </div>
+      </div>
+
+    </div><!-- /dex-bottom -->
+
+  </div><!-- /dex-body -->
+
+</div>

@@ -1,0 +1,11 @@
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { DialogComponent } from './components/dialog/dialog';
+
+@Component({
+  selector: 'app-root',
+  imports: [RouterOutlet, DialogComponent],
+  templateUrl: './app.html',
+  styleUrl: './app.css'
+})
+export class App {}

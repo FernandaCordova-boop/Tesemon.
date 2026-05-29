@@ -1,0 +1,210 @@
+@import '../pve/pve.css';
+
+/* ════════════════════════════════════════════
+   PVP — Lobby, Sala de Espera, Selección
+   ════════════════════════════════════════════ */
+.pvp-screen-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  padding: 2rem 1rem;
+  background:
+    radial-gradient(ellipse at 30% 30%, rgba(59,76,202,0.25) 0%, transparent 55%),
+    radial-gradient(ellipse at 70% 70%, rgba(255,204,0,0.1) 0%, transparent 55%),
+    linear-gradient(160deg, #050810 0%, #0a0f20 50%, #050810 100%);
+}
+.pvp-screen-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(59,76,202,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,76,202,0.04) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+}
+
+/* ── Lobby card ── */
+.lobby-card {
+  background: rgba(5,8,20,0.92);
+  border: 1px solid rgba(255,204,0,0.3);
+  border-radius: 16px;
+  box-shadow: 0 0 60px rgba(0,0,0,0.8), 0 0 30px rgba(255,204,0,0.08);
+  padding: 3rem 2.5rem;
+  z-index: 10;
+  text-align: center;
+  max-width: 560px;
+  width: 95%;
+  position: relative;
+  backdrop-filter: blur(12px);
+}
+.lobby-card::before {
+  content: "";
+  position: absolute;
+  top: -1px; left: 15%; right: 15%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ffcc00, #3b4cca, #ffcc00, transparent);
+  border-radius: 2px;
+}
+
+.lobby-title {
+  font-family: var(--retro-font-pixel);
+  font-size: 1.2rem;
+  color: var(--arena-gold);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow:
+    -3px -3px 0 #3b4cca, 3px -3px 0 #3b4cca,
+    -3px  3px 0 #3b4cca, 3px  3px 0 #3b4cca,
+    0 0 20px rgba(255,204,0,0.4);
+  margin-bottom: 0.8rem;
+}
+.lobby-subtitle {
+  font-family: var(--retro-font-pixel);
+  font-size: 0.45rem;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 1px;
+  margin-bottom: 2rem;
+  line-height: 1.8;
+}
+
+.lobby-options { display: flex; flex-direction: column; gap: 1rem; }
+
+.lobby-btn {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  color: rgba(255,255,255,0.7);
+  padding: 0.9rem 1.2rem;
+  font-family: var(--retro-font-pixel);
+  font-size: 0.55rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: background 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.lobby-btn:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,204,0,0.4);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(255,204,0,0.1);
+}
+.lobby-btn.primary {
+  background: rgba(239,68,68,0.12);
+  border-color: rgba(239,68,68,0.4);
+  color: #ff5252;
+}
+.lobby-btn.primary:hover {
+  background: rgba(239,68,68,0.2);
+  box-shadow: 0 0 16px rgba(239,68,68,0.15);
+}
+.lobby-btn.secondary {
+  background: rgba(59,76,202,0.12);
+  border-color: rgba(59,76,202,0.4);
+  color: #7b9fff;
+}
+.lobby-btn.secondary:hover {
+  background: rgba(59,76,202,0.2);
+  box-shadow: 0 0 16px rgba(59,76,202,0.15);
+}
+
+.join-box { display: flex; gap: 0.5rem; }
+.room-input {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: #fff;
+  padding: 0.7rem 1rem;
+  font-family: var(--retro-font-pixel);
+  font-size: 0.7rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.room-input:focus { border-color: rgba(255,204,0,0.5); }
+.room-input::placeholder { color: rgba(255,255,255,0.2); letter-spacing: 2px; }
+
+/* ── Sala de espera ── */
+.waiting-card { min-height: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.code-bezel {
+  background: rgba(34,197,94,0.06);
+  border: 1px solid rgba(34,197,94,0.3);
+  border-radius: 10px;
+  padding: 1.2rem 2rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: center;
+  box-shadow: 0 0 20px rgba(34,197,94,0.08);
+}
+.code-label {
+  font-family: var(--retro-font-pixel);
+  font-size: 0.4rem;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 2px;
+}
+.code-val {
+  font-family: var(--retro-font-pixel);
+  font-size: 2rem;
+  color: #22c55e;
+  letter-spacing: 8px;
+  text-shadow: 0 0 16px rgba(34,197,94,0.5);
+}
+
+/* ── Selección de starter ── */
+.selection-card {
+  background: rgba(5,8,20,0.92);
+  border: 1px solid rgba(255,204,0,0.3);
+  border-radius: 16px;
+  box-shadow: 0 0 60px rgba(0,0,0,0.8);
+  padding: 2.5rem 2rem;
+  z-index: 10;
+  text-align: center;
+  max-width: 700px;
+  width: 95%;
+  backdrop-filter: blur(12px);
+}
+.selection-title {
+  font-family: var(--retro-font-pixel);
+  font-size: 1rem;
+  color: var(--arena-gold);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow:
+    -2px -2px 0 #3b4cca, 2px -2px 0 #3b4cca,
+    -2px  2px 0 #3b4cca, 2px  2px 0 #3b4cca,
+    0 0 16px rgba(255,204,0,0.4);
+  margin-bottom: 0.5rem;
+}
+.selection-subtitle {
+  font-family: var(--retro-font-pixel);
+  font-size: 0.42rem;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 1px;
+  margin-bottom: 2rem;
+}
+
+/* Spinner y blink */
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid rgba(255,204,0,0.15);
+  border-top-color: var(--arena-gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  box-shadow: 0 0 10px rgba(255,204,0,0.3);
+  margin: 1rem auto;
+}
+.blink { animation: blink 1.2s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }

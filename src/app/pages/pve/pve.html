@@ -1,0 +1,215 @@
+<!-- Overlay de animaciones de batalla -->
+<app-battle-overlay></app-battle-overlay>
+
+<!-- PANTALLA DE SELECCIÓN -->
+<div class="selection-screen" *ngIf="phase === 'selecting' && !loading">
+  <a class="back-to-home-btn" (click)="exitGame()" style="cursor: pointer;">◀ Volver</a>
+  <h1 style="text-align: center; color: var(--primary-color); margin-top: 2rem;">Elige a tu luchador</h1>
+  <p style="text-align: center; color: #cbd5e1;">Selecciona 1 carta para iniciar la batalla rápida 1 vs 1</p>
+
+  <div class="cards-grid" style="display: flex; justify-content: center; gap: 2rem; margin-top: 3rem;">
+    <div class="card" *ngFor="let card of starterCards" (click)="selectCard(card)" [ngClass]="'type-' + card.types[0]" style="cursor: pointer; width: 200px; height: 280px;">
+      <div class="hp-bar" style="position: relative; height: 8px;"><div class="hp-fill" style="width: 100%"></div></div>
+      <img [src]="card.image" style="width: 120px; margin-top: 2rem; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5))" />
+      <div class="card-details" style="position: absolute; bottom: 0; padding: 10px; width: 100%; text-align: center;">
+        <span class="name" style="font-size: 1.2rem;">{{ card.name }}</span>
+        <span class="hp" style="display: block;">HP: {{ card.hp }}</span>
+        <span class="atk-def">ATK: {{ card.attack }} | DEF: {{ card.defense }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TABLERO DE BATALLA -->
+<div class="game-board-container" *ngIf="phase === 'battling' && !loading && gameState">
+
+  <!-- OVERLAY DE FIN DE JUEGO -->
+  <div class="game-over-overlay" *ngIf="gameState.status === 'won' || gameState.status === 'lost'">
+    <div class="game-over-box" [ngClass]="{'won': gameState.status === 'won', 'lost': gameState.status === 'lost'}">
+      <h1>{{ gameState.status === 'won' ? '¡VICTORIA!' : 'DERROTA...' }}</h1>
+      <div style="display: flex; gap: 1rem; justify-content: center;">
+        <button class="action-btn" onclick="location.reload()">Jugar de Nuevo</button>
+        <button class="action-btn secondary" (click)="exitGame()">Volver al Menú</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HUD IZQUIERDA (Log y Controles) -->
+  <div class="hud-left">
+    <h2 class="turn-indicator" [class.ai-turn]="gameState.activePlayerId === 'ai'">
+      {{ gameState.activePlayerId === 'player' ? 'TU TURNO' : 'TURNO RIVAL' }}
+    </h2>
+    <button class="action-btn end-turn"
+            [disabled]="gameState.activePlayerId !== 'player'"
+            (click)="onEndTurn()">
+      Finalizar Turno
+    </button>
+    <button class="action-btn secondary"
+            style="margin-top: 0.5rem;"
+            (click)="exitGame()">
+      Salir al Menú
+    </button>
+
+    <!-- BATTLE CONTROL PANEL FOR SELECTED POKEMON -->
+    <div class="selected-pokemon-control" *ngIf="selectedAttackerId && gameState.activePlayerId === 'player' && getSelectedAttacker() as selected">
+      <h3 style="font-family: var(--retro-font-pixel); font-size: 0.6rem; color: #cc0000; margin: 0; text-align: center; border-bottom: 2px dashed #000; padding-bottom: 0.4rem;">DETALLES DE LUCHA</h3>
+      <p style="font-weight: bold; font-size: 1.1rem; text-align: center; margin: 2px 0; color: #000;">{{ selected.name }}</p>
+
+      <!-- Pose Selector -->
+      <h4 style="font-family: var(--retro-font-pixel); font-size: 0.52rem; color: #555; text-align: center; margin: 4px 0 2px 0;">SELECCIONA POSTURA</h4>
+      <div class="pose-selector-container">
+        <button class="pose-btn attack-btn"
+                [class.active]="selected.pose === 'attack'"
+                (click)="onSelectPose(selected, 'attack', $event)">
+          ⚔️ ATAQUE
+        </button>
+        <button class="pose-btn defense-btn"
+                [class.active]="selected.pose === 'defense'"
+                (click)="onSelectPose(selected, 'defense', $event)">
+          🛡️ DEFENSA
+        </button>
+      </div>
+
+      <!-- Attack List Selection -->
+      <div *ngIf="selected.pose === 'attack' && selected.canAttack">
+        <h4 style="font-family: var(--retro-font-pixel); font-size: 0.52rem; color: #555; text-align: center; margin: 6px 0 4px 0;">SELECCIONA ATAQUE</h4>
+        <div class="attack-options-container">
+          <button class="attack-select-btn"
+                  *ngFor="let atk of selected.attacks; let idx = index"
+                  [class.active]="selectedAttackIndex === idx"
+                  (click)="onSelectPlayerFieldCardAttack(selected, idx, $event)">
+            <span>💥 {{ atk.name }}</span>
+            <span>{{ atk.damagePower }} PODER</span>
+          </button>
+        </div>
+        <p style="font-size: 0.8rem; color: #666; font-style: italic; text-align: center; margin-top: 6px;">
+          * Tras elegir el ataque, haz clic en un Pokémon rival en el campo para golpear.
+        </p>
+      </div>
+
+      <!-- Ability button -->
+      <button class="ability-select-btn"
+              [disabled]="selected.abilityUsed"
+              (click)="onUseAbility(selected, $event)">
+        🌟 USAR HABILIDAD ESPECIAL
+      </button>
+
+      <!-- Defending or can't attack message -->
+      <p *ngIf="selected.pose === 'defense'" style="color: #c0392b; font-size: 0.9rem; text-align: center; font-style: italic; margin: 4px 0;">
+        ¡En Pose Defensiva no puede atacar!
+      </p>
+      <p *ngIf="selected.pose === 'attack' && !selected.canAttack" style="color: #666; font-size: 0.9rem; text-align: center; font-style: italic; margin: 4px 0;">
+        Ya ha atacado este turno.
+      </p>
+
+      <button class="cancel-select-btn" (click)="deselectAttacker()">
+        ❌ CANCELAR SELECCIÓN
+      </button>
+    </div>
+
+    <div class="battle-log">
+      <div class="log-entry" *ngFor="let msg of gameState.log">{{ msg }}</div>
+    </div>
+  </div>
+
+  <!-- HUD DERECHA (Vida del Jugador) -->
+  <div class="hud-right">
+    <div class="score-counter ai-score" style="width: 140px; height: 120px;">
+      <span class="label">Vida Rival (IA)</span>
+      <span class="points" [class.score-changed]="aiLpChanged"
+            style="font-size: 1.6rem; color: #cc0000; font-family: var(--retro-font-pixel);">
+        {{ gameState.ai.lifePoints }}
+      </span>
+    </div>
+    <div class="score-counter player-score" style="width: 140px; height: 120px;">
+      <span class="label">Mi Vida</span>
+      <span class="points" [class.score-changed]="playerLpChanged"
+            style="font-size: 1.6rem; color: #1c4010; font-family: var(--retro-font-pixel);">
+        {{ gameState.player.lifePoints }}
+      </span>
+    </div>
+  </div>
+
+  <!-- SECCIÓN RIVAL (IA) -->
+  <div class="board-section ai-section">
+    <!-- Mano Rival -->
+    <div class="hand-zone ai-hand">
+      <div class="card card-back" *ngFor="let c of gameState.ai.hand"></div>
+    </div>
+
+    <!-- Campo Rival -->
+    <div class="field-zone">
+      <div [ngClass]="getCardClasses(card, 'ai')"
+           *ngFor="let card of gameState.ai.field"
+           (click)="onSelectEnemyFieldCard(card)">
+        <div class="hp-bar">
+          <div [ngClass]="getHpFillClasses(card)" [style.width.%]="(card.currentHp / card.hp) * 100"></div>
+        </div>
+
+        <!-- Pose Indicator -->
+        <span [style.background]="card.pose === 'attack' ? '#ff3333' : '#3366ff'"
+              style="position: absolute; top: 18px; left: 4px; font-family: var(--retro-font-pixel); font-size: 0.45rem; padding: 2px 4px; border: 2px solid #000; border-radius: 2px; color: #fff; font-weight: bold; text-transform: uppercase; z-index: 5;">
+          {{ card.pose === 'attack' ? 'ATK' : 'DEF' }}
+        </span>
+
+        <img [src]="card.image" class="card-img" />
+        <div class="card-details">
+          <span class="name">{{ card.name }}</span>
+          <span class="hp">HP: {{ card.currentHp }}/{{ card.hp }}</span>
+          <span class="atk-def">ATK:{{ card.attack }} DEF:{{ card.defense }}</span>
+        </div>
+      </div>
+      <div class="empty-slot" *ngFor="let i of [1,2,3]" [hidden]="i <= gameState.ai.field.length"></div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN JUGADOR -->
+  <div class="board-section player-section">
+    <!-- Campo Jugador -->
+    <div class="field-zone">
+      <div [ngClass]="getCardClasses(card, 'player')"
+           *ngFor="let card of gameState.player.field"
+           (click)="onSelectPlayerFieldCard(card)">
+        <div class="hp-bar">
+          <div [ngClass]="getHpFillClasses(card)" [style.width.%]="(card.currentHp / card.hp) * 100"></div>
+        </div>
+
+        <!-- Pose Badge -->
+        <span [style.background]="card.pose === 'attack' ? '#ff3333' : '#3366ff'"
+              style="position: absolute; top: 18px; left: 4px; font-family: var(--retro-font-pixel); font-size: 0.45rem; padding: 2px 4px; border: 2px solid #000; border-radius: 2px; color: #fff; font-weight: bold; text-transform: uppercase; text-align: center; z-index: 5;">
+          {{ card.pose === 'attack' ? 'ATK' : 'DEF' }}
+        </span>
+
+        <img [src]="card.image" class="card-img" />
+        <div class="card-details">
+          <span class="name">{{ card.name }}</span>
+          <span class="hp">HP: {{ card.currentHp }}/{{ card.hp }}</span>
+          <span class="atk-def">ATK:{{ card.attack }} DEF:{{ card.defense }}</span>
+        </div>
+      </div>
+      <div class="empty-slot" *ngFor="let i of [1,2,3]" [hidden]="i <= gameState.player.field.length"></div>
+    </div>
+
+    <!-- Mano Jugador -->
+    <div class="hand-zone player-hand">
+      <div class="card in-hand"
+           *ngFor="let card of gameState.player.hand"
+           [ngClass]="'type-' + card.types[0]"
+           (click)="onPlayCard(card)">
+        <img [src]="card.image" class="card-img" />
+        <div class="card-details">
+          <span class="name">{{ card.name }}</span>
+          <span class="hp">HP: {{ card.hp }}</span>
+          <span class="atk-def">A:{{ card.attack }} D:{{ card.defense }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Loading State -->
+<div class="loading-screen" *ngIf="loading">
+  <div class="spinner"></div>
+  <h2>Conectando...</h2>
+</div>

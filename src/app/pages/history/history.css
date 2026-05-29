@@ -1,0 +1,128 @@
+.history-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #151520;
+  font-family: var(--retro-font-text);
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* CRT Screen Scanlines */
+.history-container::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+  background-size: 100% 4px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Botón Volver */
+.back-to-home-btn {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  background: #ece9d8;
+  border: 3px solid #000000;
+  color: #000000;
+  padding: 0.5rem 1rem;
+  font-family: var(--retro-font-pixel);
+  font-size: 0.75rem;
+  text-decoration: none;
+  box-shadow: 4px 4px 0px #000000;
+  z-index: 10;
+  cursor: pointer;
+}
+
+.back-to-home-btn:hover {
+  background: #ffcc00;
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px #000000;
+}
+
+/* Carcasa PC de Bill */
+.pc-bezel {
+  background: #c02020; /* Rojo Pokédex */
+  border: 6px solid #000000;
+  border-radius: 12px;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 550px;
+  box-shadow: 8px 8px 0px #000000;
+  z-index: 5;
+  text-align: center;
+  position: relative;
+}
+
+.title {
+  font-family: var(--retro-font-pixel);
+  font-size: 1rem;
+  color: #ffcc00;
+  text-shadow: 2px 2px 0px #000000;
+  margin-bottom: 2rem;
+  text-transform: uppercase;
+}
+
+/* Pantalla CRT del PC */
+.console-screen {
+  background: #f8f8f0; /* Fondo beige claro de pantalla retro */
+  border: 6px solid #4a4a4a; /* Bisel gris */
+  color: #101010;
+  box-shadow: inset 4px 4px 0px rgba(0,0,0,0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  text-align: center;
+}
+
+/* Cabecera del terminal */
+.pc-header {
+  display: flex;
+  justify-content: space-between;
+  background: #3b4cca; /* Azul de Bill's PC */
+  border-bottom: 4px solid #000000;
+  padding: 0.5rem 1rem;
+  font-family: var(--retro-font-pixel);
+  font-size: 0.55rem;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.pc-body {
+  padding: 2rem 1.5rem;
+}
+
+.pc-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 1rem;
+  filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.2));
+}
+
+.pc-body h2 {
+  font-family: var(--retro-font-pixel);
+  font-size: 0.85rem;
+  color: #cc0000;
+  margin-bottom: 1.2rem;
+  text-transform: uppercase;
+}
+
+.empty-msg {
+  font-family: var(--retro-font-pixel);
+  font-size: 0.65rem;
+  line-height: 1.5;
+  color: #000000;
+  margin-bottom: 1.2rem;
+  text-transform: uppercase;
+}
+
+.subtext {
+  font-family: var(--retro-font-text);
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #555555;
+  line-height: 1.4;
+}

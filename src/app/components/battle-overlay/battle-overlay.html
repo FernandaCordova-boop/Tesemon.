@@ -1,0 +1,30 @@
+<ng-container *ngIf="state">
+
+  <!-- ══ Flash de pantalla ══ -->
+  <div class="screen-flash"
+       [class.flash-red]="state.screenFlash === 'red'"
+       [class.flash-gold]="state.screenFlash === 'gold'"
+       [class.flash-blue]="state.screenFlash === 'blue'"
+       [class.flash-green]="state.screenFlash === 'green'"
+       [class.flash-white]="state.screenFlash === 'white'"
+       [class.active]="state.screenFlash !== 'none'">
+  </div>
+
+  <!-- ══ Sacudida de tablero ══ -->
+  <div class="board-shake-overlay" [class.shaking]="state.shakeBoard"></div>
+
+  <!-- ══ Textos flotantes de daño / efectos ══ -->
+  <div class="floating-text-layer">
+    <div *ngFor="let ft of state.floatingTexts; trackBy: trackByText"
+         class="floating-text"
+         [class.size-small]="ft.size === 'small'"
+         [class.size-medium]="ft.size === 'medium'"
+         [class.size-large]="ft.size === 'large'"
+         [style.left.%]="ft.x"
+         [style.top.%]="ft.y"
+         [style.color]="ft.color">
+      {{ ft.text }}
+    </div>
+  </div>
+
+</ng-container>

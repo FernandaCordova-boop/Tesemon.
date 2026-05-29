@@ -1,0 +1,102 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h2 *ngIf="!isSuccess">Comienza tu Aventura</h2>
+      <p *ngIf="!isSuccess">Crea tu cuenta de entrenador Pokémon</p>
+      <h2 *ngIf="isSuccess" style="color: #27ae60;">¡Entrenador Registrado!</h2>
+      <p *ngIf="isSuccess">Tu cuenta de Supabase está lista</p>
+    </div>
+    
+    <!-- Éxito al registrarse -->
+    <div *ngIf="isSuccess" class="success-screen" style="text-align: center; padding: 1rem 0;">
+      <div style="font-size: 3rem; margin-bottom: 1rem;">🏆</div>
+      <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1.5rem; color: #1c1c1c; font-family: var(--retro-font-text);">
+        ¡Registro completado con éxito! Tu información ha sido almacenada de forma segura en la base de datos de Supabase.
+      </p>
+      <p style="font-size: 1.2rem; margin-bottom: 2rem; color: #555555; font-family: var(--retro-font-text);">
+        Si has activado la confirmación por correo electrónico en tu panel, recuerda revisar tu buzón antes de iniciar sesión.
+      </p>
+      <button class="submit-btn" routerLink="/login" style="background: #27ae60; color: white;">
+        Iniciar Sesión
+      </button>
+    </div>
+
+    <form *ngIf="!isSuccess" [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      
+      <div class="form-group">
+        <label for="username">Nombre de Entrenador</label>
+        <div class="input-wrapper">
+          <input 
+            type="text" 
+            id="username" 
+            formControlName="username" 
+            placeholder="Ej. Ash Ketchum"
+            [ngClass]="{ 'is-invalid': f['username'].touched && f['username'].invalid }"
+          >
+        </div>
+        <div class="error-msg" *ngIf="f['username'].touched && f['username'].errors?.['required']">
+          El nombre es obligatorio.
+        </div>
+        <div class="error-msg" *ngIf="f['username'].touched && f['username'].errors?.['minlength']">
+          Debe tener al menos 3 caracteres.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Correo Electrónico</label>
+        <div class="input-wrapper">
+          <input 
+            type="email" 
+            id="email" 
+            formControlName="email" 
+            placeholder="entrenador@pokemon.com"
+            [ngClass]="{ 'is-invalid': f['email'].touched && f['email'].invalid }"
+          >
+        </div>
+        <div class="error-msg" *ngIf="f['email'].touched && f['email'].errors?.['required']">
+          El correo es obligatorio.
+        </div>
+        <div class="error-msg" *ngIf="f['email'].touched && f['email'].errors?.['email']">
+          Formato de correo inválido.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña Segura</label>
+        <div class="input-wrapper">
+          <input 
+            type="password" 
+            id="password" 
+            formControlName="password" 
+            placeholder="Mínimo 8 caracteres"
+            [ngClass]="{ 'is-invalid': f['password'].touched && f['password'].invalid }"
+          >
+        </div>
+        <div class="error-msg" *ngIf="f['password'].touched && f['password'].errors?.['required']">
+          La contraseña es obligatoria.
+        </div>
+        <div class="error-msg" *ngIf="f['password'].touched && f['password'].errors?.['minlength']">
+          Debe tener al menos 8 caracteres.
+        </div>
+        <div class="error-msg" *ngIf="f['password'].touched && f['password'].errors?.['pattern']">
+          Debe incluir al menos una mayúscula, una minúscula y un número.
+        </div>
+      </div>
+
+      <div class="alert error" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Registrarse</span>
+        <span *ngIf="isLoading" class="loader"></span>
+      </button>
+
+    </form>
+
+    <div *ngIf="!isSuccess" class="auth-footer">
+      <p>¿Ya tienes tu Pokédex? <a routerLink="/login">Inicia Sesión</a></p>
+    </div>
+  </div>
+</div>
+

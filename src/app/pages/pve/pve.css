@@ -1,0 +1,1204 @@
+/* ================================================================
+   BATTLE ARENA — Campo de Batalla Épico + Cartas TCG Premium
+   ================================================================ */
+
+/* Bloquear scroll del body cuando el tablero está activo */
+:host {
+  display: block;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Variables ── */
+:root {
+  --arena-red:    rgba(200,20,20,0.35);
+  --arena-blue:   rgba(20,80,200,0.35);
+  --arena-gold:   #ffcc00;
+  --arena-dark:   #050810;
+  --hud-bg:       rgba(5,8,20,0.92);
+  --hud-border:   rgba(255,204,0,0.3);
+  /* Cartas en mano / selección */
+  --card-w:       110px;
+  --card-h:       158px;
+  /* Cartas en campo — ajustadas para caber en pantalla */
+  --field-card-w: 148px;
+  --field-card-h: 210px;
+}
+
+/* ════════════════════════════════════════════
+   PANTALLA DE SELECCIÓN
+   ════════════════════════════════════════════ */
+.selection-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255,204,0,0.12) 0%, transparent 55%),
+    linear-gradient(160deg, #050810 0%, #0a0f20 50%, #050810 100%);
+}
+.selection-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,204,0,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,204,0,0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+}
+
+.selection-screen h1 {
+  font-family: var(--retro-font-pixel);
+  font-size: 1.2rem;
+  color: var(--arena-gold);
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  text-shadow:
+    -3px -3px 0 #3b4cca, 3px -3px 0 #3b4cca,
+    -3px  3px 0 #3b4cca, 3px  3px 0 #3b4cca,
+    0 0 20px rgba(255,204,0,0.5);
+  margin-bottom: 0.5rem;
+  position: relative;
+  z-index: 2;
+}
+.selection-screen p {
+  font-family: var(--retro-font-pixel);
+  font-size: 0.5rem;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 2px;
+  margin-bottom: 2.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* Grid de cartas de selección */
+.cards-grid {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Carta de selección (TCG premium) ── */
+.card {
+  width: var(--card-w);
+  height: var(--card-h);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1.5px solid rgba(255,255,255,0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), box-shadow 0.3s;
+  background: linear-gradient(160deg, #0d0d1a, #12121e);
+}
+.card:hover {
+  transform: translateY(-12px) scale(1.05);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 30px rgba(255,204,0,0.3);
+  border-color: rgba(255,204,0,0.5);
+}
+
+/* Reverso de carta */
+.card-back {
+  background:
+    repeating-linear-gradient(45deg, #1a2a6c, #1a2a6c 8px, #0d1a4a 8px, #0d1a4a 16px);
+  border-color: rgba(255,204,0,0.3) !important;
+  cursor: default;
+}
+.card-back:hover { transform: none !important; box-shadow: none !important; }
+
+/* ── Imagen de carta ── */
+.card-img {
+  width: 90px !important;
+  height: 90px !important;
+  margin-top: 1.2rem !important;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.7));
+  transition: transform 0.3s;
+  position: relative;
+  z-index: 2;
+}
+.card:hover .card-img { transform: scale(1.1) translateY(-4px); }
+
+/* ── Detalles de carta ── */
+.card-details {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important; right: 0 !important;
+  padding: 0.5rem 0.4rem !important;
+  background: rgba(0,0,0,0.85) !important;
+  border-top: 1px solid rgba(255,255,255,0.08) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 2px;
+  backdrop-filter: blur(4px);
+}
+.card-details .name {
+  font-family: var(--retro-font-pixel) !important;
+  font-size: 0.45rem !important;
+  color: #fff !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 95%;
+  text-align: center;
+}
+.card-details .hp {
+  font-family: var(--retro-font-pixel) !important;
+  font-size: 0.4rem !important;
+  color: #ff5252 !important;
+  display: block !important;
+}
+.card-details .atk-def {
+  font-family: var(--retro-font-pixel) !important;
+  font-size: 0.38rem !important;
+  color: rgba(255,255,255,0.5) !important;
+}
+
+/* ── Barra de HP ── */
+.hp-bar {
+  width: 88% !important;
+  height: 5px !important;
+  background: rgba(255,255,255,0.08) !important;
+  border: none !important;
+  border-radius: 3px !important;
+  position: absolute !important;
+  top: 6px !important;
+  left: 6% !important;
+  overflow: hidden;
+}
+.hp-fill {
+  height: 100% !important;
+  background: linear-gradient(90deg, #22c55e, #86efac) !important;
+  border-radius: 3px !important;
+  box-shadow: 0 0 4px rgba(34,197,94,0.5);
+  transition: width 0.5s ease, background 0.5s;
+}
+
+/* Colores de HP según nivel */
+.hp-fill[style*="width: 1"],
+.hp-fill[style*="width: 2"],
+.hp-fill[style*="width: 3"],
+.hp-fill[style*="width: 4"] {
+  background: linear-gradient(90deg, #eab308, #fde047) !important;
+}
+
+/* ── Colores de fondo por tipo ── */
+.type-fire     { background: linear-gradient(160deg,#1e0500,#3a0a00,#150300) !important; border-color: rgba(255,80,0,0.3) !important; }
+.type-water    { background: linear-gradient(160deg,#001530,#002050,#000e1e) !important; border-color: rgba(30,136,229,0.3) !important; }
+.type-grass    { background: linear-gradient(160deg,#081500,#102200,#050d00) !important; border-color: rgba(76,175,80,0.3) !important; }
+.type-electric { background: linear-gradient(160deg,#181200,#252000,#0e0b00) !important; border-color: rgba(255,204,0,0.3) !important; }
+.type-psychic  { background: linear-gradient(160deg,#200010,#300018,#150008) !important; border-color: rgba(255,64,129,0.3) !important; }
+.type-fighting { background: linear-gradient(160deg,#180600,#280e00,#0e0300) !important; border-color: rgba(165,42,42,0.3) !important; }
+.type-fairy    { background: linear-gradient(160deg,#200018,#300025,#150010) !important; border-color: rgba(255,170,204,0.3) !important; }
+.type-dark     { background: linear-gradient(160deg,#080808,#101010,#040404) !important; border-color: rgba(80,80,80,0.3) !important; }
+.type-steel    { background: linear-gradient(160deg,#0e1214,#161c20,#080a0c) !important; border-color: rgba(176,190,197,0.3) !important; }
+.type-dragon   { background: linear-gradient(160deg,#0a0018,#14002a,#060010) !important; border-color: rgba(119,85,255,0.3) !important; }
+.type-ghost    { background: linear-gradient(160deg,#0a0018,#120025,#060010) !important; border-color: rgba(102,51,153,0.3) !important; }
+.type-poison   { background: linear-gradient(160deg,#120012,#1c001c,#0a000a) !important; border-color: rgba(170,85,170,0.3) !important; }
+.type-flying   { background: linear-gradient(160deg,#000e1a,#001525,#00080e) !important; border-color: rgba(153,204,255,0.3) !important; }
+.type-bug      { background: linear-gradient(160deg,#081000,#101a00,#040800) !important; border-color: rgba(136,187,34,0.3) !important; }
+.type-rock     { background: linear-gradient(160deg,#181000,#221800,#0e0800) !important; border-color: rgba(187,170,102,0.3) !important; }
+.type-ground   { background: linear-gradient(160deg,#180e00,#221400,#0e0800) !important; border-color: rgba(221,170,85,0.3) !important; }
+.type-ice      { background: linear-gradient(160deg,#001518,#002025,#000c10) !important; border-color: rgba(102,204,255,0.3) !important; }
+.type-normal   { background: linear-gradient(160deg,#101010,#181818,#080808) !important; border-color: rgba(187,187,187,0.2) !important; }
+
+/* ════════════════════════════════════════════
+   CAMPO DE BATALLA ÉPICO
+   ════════════════════════════════════════════ */
+.game-board-container {
+  display: grid;
+  grid-template-columns: 260px 1fr 140px;
+  grid-template-rows: 1fr 1fr;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  position: relative;
+  background: var(--arena-dark);
+  color: #fff;
+  font-family: var(--retro-font-text);
+}
+
+/* ── Fondo de arena holográfica ── */
+.game-board-container::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    /* Zona rival — rojo */
+    radial-gradient(ellipse at 50% 15%, rgba(200,20,20,0.4) 0%, transparent 55%),
+    /* Zona jugador — azul */
+    radial-gradient(ellipse at 50% 85%, rgba(20,80,200,0.4) 0%, transparent 55%),
+    /* Centro — dorado tenue */
+    radial-gradient(ellipse at 50% 50%, rgba(255,204,0,0.06) 0%, transparent 40%),
+    /* Base oscura */
+    linear-gradient(180deg, #080010 0%, #050810 40%, #080010 100%);
+}
+
+/* ── Grid hexagonal de fondo ── */
+.game-board-container::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,204,0,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,204,0,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.board-section, .hud-left, .hud-right { position: relative; z-index: 5; }
+
+/* ── Sección rival ── */
+.ai-section {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 0.4rem 0.8rem;
+  border-bottom: 1px solid rgba(200,20,20,0.3);
+  background: linear-gradient(180deg, rgba(200,20,20,0.08) 0%, transparent 100%);
+  overflow: hidden;
+}
+
+/* ── Sección jugador ── */
+.player-section {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0.4rem 0.8rem;
+  border-top: 1px solid rgba(20,80,200,0.3);
+  background: linear-gradient(0deg, rgba(20,80,200,0.08) 0%, transparent 100%);
+  overflow: hidden;
+}
+
+/* ── Línea central del campo ── */
+.ai-section::after {
+  content: "— VS —";
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--retro-font-pixel);
+  font-size: 0.45rem;
+  color: rgba(255,204,0,0.5);
+  letter-spacing: 4px;
+  z-index: 10;
+  white-space: nowrap;
+  text-shadow: 0 0 8px rgba(255,204,0,0.4);
+}
+
+/* ── Zonas de mano ── */
+.hand-zone {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  height: 140px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+/* ── Zona de campo ── */
+.field-zone {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+  height: var(--field-card-h);
+  align-items: center;
+  margin: 0.3rem 0;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Plataforma de arena bajo cada carta en campo */
+.field-zone::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 40px;
+  background: radial-gradient(ellipse at 50% 100%, rgba(255,204,0,0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ── Slot vacío ── */
+.empty-slot {
+  width: var(--field-card-w);
+  height: var(--field-card-h);
+  border: 2px dashed rgba(255,255,255,0.08);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.02);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.empty-slot::after {
+  content: "+";
+  font-size: 1.5rem;
+  color: rgba(255,255,255,0.06);
+  font-family: var(--retro-font-pixel);
+}
+
+/* ── Cartas en campo — GRANDES con layout flex real ── */
+.in-field {
+  cursor: pointer;
+  width: var(--field-card-w) !important;
+  height: var(--field-card-h) !important;
+  border-radius: 14px !important;
+  /* Sobreescribir el layout base que usa position:absolute en card-details */
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+.in-field::before { display: none !important; }
+
+/* Barra HP en campo — fija arriba */
+.in-field .hp-bar {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  width: 100% !important;
+  height: 6px !important;
+  border-radius: 0 !important;
+  flex-shrink: 0;
+  margin: 0 !important;
+}
+
+/* Zona de imagen — ocupa el espacio central */
+.in-field .card-img {
+  width: 100% !important;
+  height: 110px !important;
+  margin-top: 0 !important;
+  object-fit: contain !important;
+  padding: 6px !important;
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.7));
+  transition: transform 0.3s;
+}
+.in-field:hover .card-img {
+  transform: scale(1.06) translateY(-3px);
+}
+
+/* Detalles — fluyen debajo de la imagen, NO absolutos */
+.in-field .card-details {
+  position: relative !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  padding: 0.5rem 0.4rem !important;
+  background: rgba(0,0,0,0.75) !important;
+  border-top: 1px solid rgba(255,255,255,0.08) !important;
+  backdrop-filter: blur(4px);
+}
+.in-field .card-details .name {
+  font-size: 0.52rem !important;
+  color: #fff !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 95%;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+.in-field .card-details .hp {
+  font-size: 0.48rem !important;
+  color: #ff5252 !important;
+  display: block !important;
+}
+.in-field .card-details .atk-def {
+  font-size: 0.44rem !important;
+  color: rgba(255,255,255,0.65) !important;
+}
+
+/* Plataforma holográfica bajo carta en campo */
+.in-field::after {
+  content: "";
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 110%;
+  height: 24px;
+  background: radial-gradient(ellipse at 50% 100%, rgba(255,204,0,0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ── Cartas en mano ── */
+.in-hand {
+  cursor: pointer;
+  width: var(--card-w) !important;
+  height: var(--card-h) !important;
+  transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s !important;
+}
+.in-hand:hover {
+  transform: translateY(-20px) scale(1.06) !important;
+  z-index: 20;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.7), 0 0 20px rgba(255,204,0,0.2) !important;
+}
+
+/* ── Estados de combate ── */
+.can-attack {
+  border-color: rgba(34,197,94,0.6) !important;
+  box-shadow: 0 0 16px rgba(34,197,94,0.4), 0 0 30px rgba(34,197,94,0.2) !important;
+  animation: canAttackPulse 1.5s ease-in-out infinite;
+}
+@keyframes canAttackPulse {
+  0%,100% { box-shadow: 0 0 16px rgba(34,197,94,0.4), 0 0 30px rgba(34,197,94,0.2); }
+  50%      { box-shadow: 0 0 24px rgba(34,197,94,0.7), 0 0 50px rgba(34,197,94,0.3); }
+}
+
+.selected-attacker {
+  border-color: rgba(255,204,0,0.8) !important;
+  box-shadow: 0 0 20px rgba(255,204,0,0.6), 0 0 50px rgba(255,204,0,0.3) !important;
+  transform: translateY(-10px) scale(1.04) !important;
+}
+
+.ai-section .in-field:hover {
+  border-color: rgba(239,68,68,0.6) !important;
+  box-shadow: 0 0 16px rgba(239,68,68,0.4) !important;
+}
+
+/* ════════════════════════════════════════════
+   HUD IZQUIERDO
+   ════════════════════════════════════════════ */
+.hud-left {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  background: var(--hud-bg);
+  border-right: 1px solid var(--hud-border);
+  display: flex;
+  flex-direction: column;
+  padding: 0.8rem;
+  z-index: 50;
+  gap: 0.5rem;
+  box-shadow: 4px 0 20px rgba(0,0,0,0.5);
+  backdrop-filter: blur(10px);
+  overflow-y: auto;
+  height: 100vh;
+  max-height: 100vh;
+}
+
+/* ── Indicador de turno ── */
+.turn-indicator {
+  font-family: var(--retro-font-pixel);
+  font-size: 0.65rem;
+  text-align: center;
+  color: #22c55e;
+  background: rgba(34,197,94,0.1);
+  border: 1px solid rgba(34,197,94,0.4);
+  padding: 0.6rem;
+  border-radius: 8px;
+  box-shadow: 0 0 12px rgba(34,197,94,0.15);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.turn-indicator.ai-turn {
+  color: #ef4444;
+  background: rgba(239,68,68,0.1);
+  border-color: rgba(239,68,68,0.4);
+  box-shadow: 0 0 12px rgba(239,68,68,0.15);
+}
+
+/* ── Botones de acción ── */
+.action-btn {
+  background: rgba(255,204,0,0.1);
+  border: 1px solid rgba(255,204,0,0.4);
+  border-radius: 8px;
+  color: var(--arena-gold);
+  padding: 0.6rem 1rem;
+  font-family: var(--retro-font-pixel);
+  font-size: 0.55rem;
+  font-weight: bold;
+  cursor: pointer;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: background 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+.action-btn:hover:not(:disabled) {
+  background: rgba(255,204,0,0.2);
+  box-shadow: 0 0 12px rgba(255,204,0,0.2);
+}
+.action-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.action-btn.end-turn {
+  background: rgba(239,68,68,0.15);
+  border-color: rgba(239,68,68,0.5);
+  color: #ff5252;
+}
+.action-btn.end-turn:hover:not(:disabled) {
+  background: rgba(239,68,68,0.25);
+  box-shadow: 0 0 12px rgba(239,68,68,0.2);
+}
+.action-btn.secondary {
+  background: rgba(59,76,202,0.15);
+  border-color: rgba(59,76,202,0.5);
+  color: #7b9fff;
+}
+
+/* ── Panel de control de Pokémon seleccionado ── */
+.selected-pokemon-control {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.selected-pokemon-control h3 {
+  font-family: var(--retro-font-pixel) !important;
+  font-size: 0.45rem !important;
+  color: #ff5252 !important;
+  text-align: center;
+  letter-spacing: 2px;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  padding-bottom: 0.4rem !important;
+  margin: 0 !important;
+}
+.selected-pokemon-control > p {
+  font-family: var(--retro-font-pixel) !important;
+  font-size: 0.5rem !important;
+  color: #fff !important;
+  text-align: center;
+  margin: 0 !important;
+}
+.selected-pokemon-control h4 {
+  font-family: var(--retro-font-pixel) !important;
+  font-size: 0.4rem !important;
+  color: rgba(255,255,255,0.4) !important;
+  text-align: center;
+  margin: 2px 0 !important;
+  letter-spacing: 1px;
+}
+
+/* Pose selector */
+.pose-selector-container { display: flex; gap: 0.4rem; }
+.pose-btn {
+  flex: 1;
+  font-family: var(--retro-font-pixel);
+  font-size: 0.45rem;
+  padding: 0.5rem 0.3rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.1);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: background 0.15s, box-shadow 0.15s;
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.5);
+}
+.pose-btn.attack-btn.active {
+  background: rgba(239,68,68,0.2) !important;
+  border-color: rgba(239,68,68,0.6) !important;
+  color: #ff5252 !important;
+  box-shadow: 0 0 8px rgba(239,68,68,0.2);
+}
+.pose-btn.defense-btn.active {
+  background: rgba(59,130,246,0.2) !important;
+  border-color: rgba(59,130,246,0.6) !important;
+  color: #60a5fa !important;
+  box-shadow: 0 0 8px rgba(59,130,246,0.2);
+}
+
+/* Ataques */
+.attack-options-container { display: flex; flex-direction: column; gap: 0.3rem; }
+.attack-select-btn {
+  width: 100%;
+  font-family: var(--retro-font-pixel);
+  font-size: 0.42rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.15s;
+  text-align: left;
+}
+.attack-select-btn:hover { background: rgba(255,255,255,0.07); color: #fff; }
+.attack-select-btn.active {
+  background: rgba(34,197,94,0.15) !important;
+  border-color: rgba(34,197,94,0.5) !important;
+  color: #22c55e !important;
+  box-shadow: 0 0 8px rgba(34,197,94,0.15);
+}
+
+/* Habilidad especial */
+.ability-select-btn {
+  width: 100%;
+  font-family: var(--retro-font-pixel);
+  font-size: 0.42rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255,204,0,0.4);
+  background: rgba(255,204,0,0.08);
+  color: var(--arena-gold);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.ability-select-btn:hover:not(:disabled) {
+  background: rgba(255,204,0,0.15);
+  box-shadow: 0 0 10px rgba(255,204,0,0.2);
+}
+.ability-select-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* Cancelar */
+.cancel-select-btn {
+  width: 100%;
+  font-family: var(--retro-font-pixel);
+  font-size: 0.4rem;
+  padding: 0.4rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  color: rgba(255,255,255,0.3);
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background 0.15s;
+}
+.cancel-select-btn:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.6); }
+
+/* ── Log de batalla ── */
+.battle-log {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.3rem;
+  padding: 0.6rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,204,0,0.3) transparent;
+}
+.log-entry {
+  font-family: var(--retro-font-text);
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.3;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.log-entry:first-child {
+  color: var(--arena-gold);
+  font-size: 1rem;
+}
+.log-entry:first-child::before {
+  content: "▶ ";
+  color: var(--arena-gold);
+  font-family: var(--retro-font-pixel);
+  font-size: 0.45rem;
+}
+
+/* ════════════════════════════════════════════
+   HUD DERECHO — Puntos de vida
+   ════════════════════════════════════════════ */
+.hud-right {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  background: var(--hud-bg);
+  border-left: 1px solid var(--hud-border);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 0.8rem 0.6rem;
+  z-index: 50;
+  backdrop-filter: blur(10px);
+  pointer-events: none;
+  height: 100vh;
+  max-height: 100vh;
+}
+.score-counter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 0.8rem 0.5rem;
+  width: 100%;
+}
+.score-counter .label {
+  font-family: var(--retro-font-pixel);
+  font-size: 0.38rem;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+}
+.score-counter .points {
+  font-family: var(--retro-font-pixel);
+  font-size: 1.4rem;
+  font-weight: bold;
+  line-height: 1;
+}
+.ai-score .points    { color: #ff5252; text-shadow: 0 0 10px rgba(255,82,82,0.4); }
+.player-score .points { color: #22c55e; text-shadow: 0 0 10px rgba(34,197,94,0.4); }
+
+/* ════════════════════════════════════════════
+   OVERLAY FIN DE JUEGO
+   ════════════════════════════════════════════ */
+.game-over-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.88);
+  z-index: 200;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(8px);
+}
+.game-over-box {
+  background: rgba(5,8,20,0.95);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 3rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 0 60px rgba(0,0,0,0.8);
+}
+.game-over-box h1 {
+  font-family: var(--retro-font-pixel);
+  font-size: 1.4rem;
+  letter-spacing: 4px;
+}
+.game-over-box.won { border-color: rgba(34,197,94,0.4); box-shadow: 0 0 40px rgba(34,197,94,0.15); }
+.game-over-box.won h1 { color: #22c55e; text-shadow: 0 0 20px rgba(34,197,94,0.5); }
+.game-over-box.lost { border-color: rgba(239,68,68,0.4); box-shadow: 0 0 40px rgba(239,68,68,0.15); }
+.game-over-box.lost h1 { color: #ef4444; text-shadow: 0 0 20px rgba(239,68,68,0.5); }
+
+/* ── Badge de pose ── */
+span[style*="position: absolute; top: 18px"] {
+  font-family: var(--retro-font-pixel) !important;
+  font-size: 0.38rem !important;
+  padding: 2px 5px !important;
+  border-radius: 3px !important;
+  border: none !important;
+  letter-spacing: 1px;
+  backdrop-filter: blur(4px);
+}
+
+/* ════════════════════════════════════════════
+   PANTALLA DE CARGA
+   ════════════════════════════════════════════ */
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--arena-dark);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+}
+.loading-screen h2 {
+  font-family: var(--retro-font-pixel);
+  font-size: 0.6rem;
+  color: var(--arena-gold);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  animation: blink 1s steps(1) infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.spinner {
+  width: 44px; height: 44px;
+  border: 3px solid rgba(255,204,0,0.15);
+  border-top-color: var(--arena-gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  box-shadow: 0 0 12px rgba(255,204,0,0.3);
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ════════════════════════════════════════════
+   RESPONSIVE
+   ════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .game-board-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+  }
+  .hud-left, .hud-right {
+    width: 100%;
+    height: auto !important;
+    max-height: none !important;
+    border: none;
+    border-bottom: 1px solid var(--hud-border);
+    grid-column: unset; grid-row: unset;
+    flex-shrink: 0;
+  }
+  .hud-right {
+    flex-direction: row;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.5rem;
+  }
+  .ai-section, .player-section {
+    grid-column: unset; grid-row: unset;
+    flex: 1;
+    min-height: 0;
+  }
+  .field-zone { gap: 0.5rem; height: 170px; }
+  .hand-zone  { height: 110px; }
+  :root {
+    --card-w: 90px;
+    --card-h: 130px;
+    --field-card-w: 115px;
+    --field-card-h: 170px;
+  }
+  .in-field .card-img { height: 80px !important; }
+  .in-field .card-details .name { font-size: 0.4rem !important; }
+  .in-field .card-details .hp   { font-size: 0.36rem !important; }
+  .in-field .card-details .atk-def { font-size: 0.34rem !important; }
+}
+
+@media (max-width: 600px) {
+  :root {
+    --card-w: 76px;
+    --card-h: 110px;
+    --field-card-w: 95px;
+    --field-card-h: 145px;
+  }
+  .field-zone { gap: 0.3rem; height: 145px; }
+  .hand-zone  { height: 95px; }
+  .in-field .card-img { height: 65px !important; }
+}
+
+/* ================================================================
+   ANIMACIONES DE BATALLA — Efectos de cartas en combate
+   ================================================================ */
+
+/* ── Animación de ATAQUE — la carta se lanza hacia el enemigo ── */
+.card-attacking {
+  animation: cardAttackLunge 0.35s cubic-bezier(.25,.46,.45,.94) forwards !important;
+  z-index: 100 !important;
+  filter: brightness(1.6) drop-shadow(0 0 20px rgba(255,200,0,0.9)) !important;
+}
+
+/* Atacante en zona del jugador se lanza hacia arriba */
+.player-section .card-attacking {
+  animation: cardAttackLungeUp 0.35s cubic-bezier(.25,.46,.45,.94) forwards !important;
+}
+
+/* Atacante en zona de la IA se lanza hacia abajo */
+.ai-section .card-attacking {
+  animation: cardAttackLungeDown 0.35s cubic-bezier(.25,.46,.45,.94) forwards !important;
+}
+
+@keyframes cardAttackLungeUp {
+  0%   { transform: translateY(0)    scale(1);    filter: brightness(1); }
+  40%  { transform: translateY(-30px) scale(1.12); filter: brightness(1.8) drop-shadow(0 0 24px rgba(255,200,0,1)); }
+  70%  { transform: translateY(-55px) scale(1.08); filter: brightness(2)   drop-shadow(0 0 30px rgba(255,100,0,1)); }
+  100% { transform: translateY(0)    scale(1);    filter: brightness(1); }
+}
+
+@keyframes cardAttackLungeDown {
+  0%   { transform: translateY(0)   scale(1);    filter: brightness(1); }
+  40%  { transform: translateY(30px) scale(1.12); filter: brightness(1.8) drop-shadow(0 0 24px rgba(255,200,0,1)); }
+  70%  { transform: translateY(55px) scale(1.08); filter: brightness(2)   drop-shadow(0 0 30px rgba(255,100,0,1)); }
+  100% { transform: translateY(0)   scale(1);    filter: brightness(1); }
+}
+
+/* ── Animación de DAÑO recibido ── */
+.card-damaged {
+  animation: cardTakeDamage 0.4s ease-out forwards !important;
+  z-index: 90 !important;
+}
+
+@keyframes cardTakeDamage {
+  0%   { transform: translateX(0)    scale(1);    filter: brightness(1); }
+  15%  { transform: translateX(-12px) scale(0.96); filter: brightness(3) saturate(0) sepia(1) hue-rotate(-20deg); }
+  30%  { transform: translateX(10px)  scale(0.97); filter: brightness(2.5) saturate(0); }
+  45%  { transform: translateX(-8px)  scale(0.98); filter: brightness(2) saturate(0.3); }
+  60%  { transform: translateX(6px)   scale(0.99); filter: brightness(1.5); }
+  80%  { transform: translateX(-3px)  scale(1);    filter: brightness(1.2); }
+  100% { transform: translateX(0)    scale(1);    filter: brightness(1); }
+}
+
+/* ── Animación de DERROTA — la carta se desvanece con explosión ── */
+.card-defeated {
+  animation: cardDefeated 0.6s ease-in forwards !important;
+  pointer-events: none !important;
+}
+
+@keyframes cardDefeated {
+  0%   { transform: scale(1)    rotate(0deg);   opacity: 1;   filter: brightness(1); }
+  20%  { transform: scale(1.15) rotate(-5deg);  opacity: 1;   filter: brightness(3) saturate(0); }
+  40%  { transform: scale(1.25) rotate(8deg);   opacity: 0.8; filter: brightness(4) saturate(0) blur(1px); }
+  60%  { transform: scale(0.9)  rotate(-10deg); opacity: 0.5; filter: brightness(2) blur(3px); }
+  80%  { transform: scale(0.5)  rotate(15deg);  opacity: 0.2; filter: brightness(1) blur(6px); }
+  100% { transform: scale(0)    rotate(20deg);  opacity: 0;   filter: blur(10px); }
+}
+
+/* ── Animación de INVOCACIÓN — la carta aparece con energía ── */
+.card-summoning {
+  animation: cardSummon 0.7s cubic-bezier(.34,1.56,.64,1) forwards !important;
+}
+
+@keyframes cardSummon {
+  0%   { transform: scale(0) translateY(40px) rotate(-15deg); opacity: 0;   filter: brightness(3) blur(8px); }
+  30%  { transform: scale(1.2) translateY(-10px) rotate(5deg); opacity: 0.8; filter: brightness(2) blur(2px); }
+  60%  { transform: scale(0.95) translateY(4px) rotate(-2deg); opacity: 1;   filter: brightness(1.5) blur(0); }
+  80%  { transform: scale(1.04) translateY(-2px) rotate(1deg); opacity: 1;   filter: brightness(1.2); }
+  100% { transform: scale(1)   translateY(0)    rotate(0deg); opacity: 1;   filter: brightness(1); }
+}
+
+/* ── Animación de HABILIDAD ESPECIAL ── */
+.card-ability {
+  animation: cardAbility 0.8s ease-in-out forwards !important;
+  z-index: 95 !important;
+}
+
+@keyframes cardAbility {
+  0%   { transform: scale(1)    rotate(0deg);  filter: brightness(1); box-shadow: none; }
+  15%  { transform: scale(1.08) rotate(-3deg); filter: brightness(1.5) drop-shadow(0 0 15px rgba(255,204,0,0.8)); }
+  30%  { transform: scale(1.15) rotate(3deg);  filter: brightness(2)   drop-shadow(0 0 25px rgba(255,204,0,1)); box-shadow: 0 0 40px rgba(255,204,0,0.6), 0 0 80px rgba(255,204,0,0.3); }
+  50%  { transform: scale(1.2)  rotate(-2deg); filter: brightness(2.5) drop-shadow(0 0 30px rgba(255,220,0,1)); }
+  70%  { transform: scale(1.1)  rotate(1deg);  filter: brightness(1.8) drop-shadow(0 0 20px rgba(255,204,0,0.7)); }
+  100% { transform: scale(1)    rotate(0deg);  filter: brightness(1); box-shadow: none; }
+}
+
+/* ── Partículas de tipo — anillo de energía alrededor de la carta ── */
+.card-attacking::before,
+.card-ability::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 18px;
+  border: 2px solid rgba(255,204,0,0.8);
+  animation: energyRing 0.35s ease-out forwards;
+  pointer-events: none;
+  z-index: 10;
+}
+
+@keyframes energyRing {
+  0%   { inset: -4px;  opacity: 1; border-color: rgba(255,255,255,0.9); }
+  50%  { inset: -16px; opacity: 0.7; border-color: rgba(255,204,0,0.6); }
+  100% { inset: -30px; opacity: 0; border-color: rgba(255,204,0,0); }
+}
+
+/* ── Efecto de tipo en la carta atacante ── */
+.type-fire.card-attacking     { filter: brightness(2) drop-shadow(0 0 20px rgba(255,80,0,1)) !important; }
+.type-water.card-attacking    { filter: brightness(2) drop-shadow(0 0 20px rgba(30,136,229,1)) !important; }
+.type-grass.card-attacking    { filter: brightness(2) drop-shadow(0 0 20px rgba(76,175,80,1)) !important; }
+.type-electric.card-attacking { filter: brightness(2.5) drop-shadow(0 0 25px rgba(255,235,0,1)) !important; }
+.type-psychic.card-attacking  { filter: brightness(2) drop-shadow(0 0 20px rgba(255,64,129,1)) !important; }
+.type-ice.card-attacking      { filter: brightness(2) drop-shadow(0 0 20px rgba(102,204,255,1)) !important; }
+.type-dragon.card-attacking   { filter: brightness(2) drop-shadow(0 0 20px rgba(119,85,255,1)) !important; }
+.type-ghost.card-attacking    { filter: brightness(2) drop-shadow(0 0 20px rgba(102,51,153,1)) !important; }
+.type-dark.card-attacking     { filter: brightness(1.5) drop-shadow(0 0 20px rgba(80,80,80,1)) !important; }
+.type-fighting.card-attacking { filter: brightness(2) drop-shadow(0 0 20px rgba(165,42,42,1)) !important; }
+.type-poison.card-attacking   { filter: brightness(2) drop-shadow(0 0 20px rgba(170,85,170,1)) !important; }
+.type-fairy.card-attacking    { filter: brightness(2) drop-shadow(0 0 20px rgba(255,170,204,1)) !important; }
+.type-steel.card-attacking    { filter: brightness(2) drop-shadow(0 0 20px rgba(176,190,197,1)) !important; }
+.type-rock.card-attacking     { filter: brightness(2) drop-shadow(0 0 20px rgba(187,170,102,1)) !important; }
+.type-ground.card-attacking   { filter: brightness(2) drop-shadow(0 0 20px rgba(221,170,85,1)) !important; }
+.type-bug.card-attacking      { filter: brightness(2) drop-shadow(0 0 20px rgba(136,187,34,1)) !important; }
+.type-flying.card-attacking   { filter: brightness(2) drop-shadow(0 0 20px rgba(153,204,255,1)) !important; }
+.type-normal.card-attacking   { filter: brightness(2) drop-shadow(0 0 20px rgba(200,200,200,1)) !important; }
+
+/* ── Pulso de HP bajo (carta en peligro) ── */
+.card-low-hp {
+  animation: lowHpPulse 1s ease-in-out infinite !important;
+}
+@keyframes lowHpPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(239,68,68,0.3); border-color: rgba(239,68,68,0.4) !important; }
+  50%      { box-shadow: 0 0 20px rgba(239,68,68,0.7), 0 0 40px rgba(239,68,68,0.3); border-color: rgba(239,68,68,0.8) !important; }
+}
+
+/* ── Barra de HP animada al recibir daño ── */
+.hp-fill {
+  transition: width 0.6s cubic-bezier(.25,.46,.45,.94), background 0.4s ease !important;
+}
+
+/* HP crítico — barra roja parpadeante */
+.hp-fill.hp-critical {
+  background: linear-gradient(90deg, #dc2626, #ef4444) !important;
+  animation: hpCriticalBlink 0.8s steps(1) infinite;
+}
+@keyframes hpCriticalBlink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+
+/* HP medio — barra amarilla */
+.hp-fill.hp-medium {
+  background: linear-gradient(90deg, #ca8a04, #eab308) !important;
+}
+
+/* ── Animación de entrada de carta a la mano ── */
+.in-hand {
+  animation: handCardEnter 0.4s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes handCardEnter {
+  from { transform: translateY(60px) scale(0.7); opacity: 0; }
+  to   { transform: translateY(0)    scale(1);   opacity: 1; }
+}
+
+/* ── Efecto de turno activo — borde pulsante en el HUD ── */
+.turn-indicator:not(.ai-turn) {
+  animation: turnPulse 2s ease-in-out infinite;
+}
+@keyframes turnPulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(34,197,94,0.15); }
+  50%      { box-shadow: 0 0 24px rgba(34,197,94,0.4), 0 0 40px rgba(34,197,94,0.15); }
+}
+
+/* ── Animación de victoria en el overlay ── */
+.game-over-box.won {
+  animation: victoryAppear 0.6s cubic-bezier(.34,1.56,.64,1) both;
+}
+.game-over-box.lost {
+  animation: defeatAppear 0.5s ease-out both;
+}
+
+@keyframes victoryAppear {
+  0%   { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+  60%  { transform: scale(1.1) rotate(3deg);   opacity: 1; }
+  80%  { transform: scale(0.97) rotate(-1deg); }
+  100% { transform: scale(1)   rotate(0deg);   opacity: 1; }
+}
+
+@keyframes defeatAppear {
+  0%   { transform: scale(1.3); opacity: 0; filter: blur(8px); }
+  100% { transform: scale(1);   opacity: 1; filter: blur(0); }
+}
+
+/* ── Partículas de fondo en la arena (estrellas animadas) ── */
+.game-board-container::before {
+  animation: arenaGlow 4s ease-in-out infinite alternate !important;
+}
+@keyframes arenaGlow {
+  0%   { opacity: 0.8; }
+  100% { opacity: 1.2; }
+}
+
+/* ── Efecto de "ready to fight" en el campo ── */
+.field-zone::before {
+  animation: fieldGlow 3s ease-in-out infinite alternate;
+}
+@keyframes fieldGlow {
+  0%   { opacity: 0.5; transform: translateX(-50%) scaleX(0.8); }
+  100% { opacity: 1;   transform: translateX(-50%) scaleX(1.2); }
+}
+
+/* ── Animación de log de batalla — nuevas entradas ── */
+.log-entry:first-child {
+  animation: logEntrySlide 0.3s ease-out both;
+}
+@keyframes logEntrySlide {
+  from { transform: translateX(-20px); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+
+/* ── Efecto de "can attack" mejorado ── */
+.can-attack {
+  animation: canAttackPulse 1.2s ease-in-out infinite, canAttackBorderSpin 3s linear infinite !important;
+}
+@keyframes canAttackBorderSpin {
+  0%   { box-shadow: 0 0 16px rgba(34,197,94,0.4), 0 0 30px rgba(34,197,94,0.2),  4px 0 0 rgba(34,197,94,0.6); }
+  25%  { box-shadow: 0 0 16px rgba(34,197,94,0.4), 0 0 30px rgba(34,197,94,0.2),  0 4px 0 rgba(34,197,94,0.6); }
+  50%  { box-shadow: 0 0 16px rgba(34,197,94,0.4), 0 0 30px rgba(34,197,94,0.2), -4px 0 0 rgba(34,197,94,0.6); }
+  75%  { box-shadow: 0 0 16px rgba(34,197,94,0.4), 0 0 30px rgba(34,197,94,0.2),  0 -4px 0 rgba(34,197,94,0.6); }
+  100% { box-shadow: 0 0 16px rgba(34,197,94,0.4), 0 0 30px rgba(34,197,94,0.2),  4px 0 0 rgba(34,197,94,0.6); }
+}
+
+/* ── Efecto de "selected attacker" mejorado ── */
+.selected-attacker {
+  animation: selectedPulse 0.8s ease-in-out infinite alternate !important;
+}
+@keyframes selectedPulse {
+  from { box-shadow: 0 0 20px rgba(255,204,0,0.6), 0 0 50px rgba(255,204,0,0.3); transform: translateY(-10px) scale(1.04); }
+  to   { box-shadow: 0 0 30px rgba(255,204,0,0.9), 0 0 70px rgba(255,204,0,0.5); transform: translateY(-14px) scale(1.06); }
+}
+
+/* ── Efecto hover en cartas enemigas cuando hay atacante seleccionado ── */
+.ai-section .in-field:hover {
+  animation: enemyTargetPulse 0.6s ease-in-out infinite alternate !important;
+}
+@keyframes enemyTargetPulse {
+  from { border-color: rgba(239,68,68,0.6) !important; box-shadow: 0 0 16px rgba(239,68,68,0.4) !important; }
+  to   { border-color: rgba(239,68,68,1)   !important; box-shadow: 0 0 28px rgba(239,68,68,0.8), 0 0 50px rgba(239,68,68,0.3) !important; }
+}
+
+/* ── Animación de score cuando cambia ── */
+.score-counter .points {
+  transition: transform 0.2s cubic-bezier(.34,1.56,.64,1), color 0.3s;
+}
+.score-counter .points.score-changed {
+  animation: scoreHit 0.4s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes scoreHit {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.4); }
+  70%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+/* ── Efecto de "back to home" button ── */
+.back-to-home-btn {
+  font-family: var(--retro-font-pixel);
+  font-size: 0.55rem;
+  color: rgba(255,255,255,0.5);
+  text-decoration: none;
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  transition: color 0.2s, transform 0.2s;
+  letter-spacing: 1px;
+}
+.back-to-home-btn:hover {
+  color: var(--arena-gold);
+  transform: translateX(-4px);
+}

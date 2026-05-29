@@ -1,0 +1,165 @@
+<div class="start-screen-container">
+
+  <!-- Fondo: cielo nocturno con estrellas animadas -->
+  <div class="stars-layer">
+    <div class="star" *ngFor="let s of stars" [style.left.%]="s.x" [style.top.%]="s.y" [style.width.px]="s.size"
+      [style.height.px]="s.size" [style.animationDelay]="s.delay"></div>
+  </div>
+
+  <!-- Pokéballs flotantes decorativas -->
+  <div class="pokeball-deco pokeball-1"></div>
+  <div class="pokeball-deco pokeball-2"></div>
+  <div class="pokeball-deco pokeball-3"></div>
+
+  <!-- Siluetas de Pokémon decorativas -->
+  <div class="pokemon-silhouette sil-left">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <!-- Silueta simple estilo Charizard -->
+      <ellipse cx="50" cy="70" rx="22" ry="18" fill="currentColor" />
+      <ellipse cx="50" cy="45" rx="16" ry="18" fill="currentColor" />
+      <ellipse cx="50" cy="28" rx="12" ry="12" fill="currentColor" />
+      <ellipse cx="30" cy="55" rx="10" ry="6" fill="currentColor" transform="rotate(-30 30 55)" />
+      <ellipse cx="70" cy="55" rx="10" ry="6" fill="currentColor" transform="rotate(30 70 55)" />
+      <path d="M60 75 Q75 85 72 95 Q65 88 58 82 Z" fill="currentColor" />
+    </svg>
+  </div>
+  <div class="pokemon-silhouette sil-right">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <!-- Silueta simple estilo Mewtwo -->
+      <ellipse cx="50" cy="65" rx="18" ry="22" fill="currentColor" />
+      <ellipse cx="50" cy="38" rx="14" ry="16" fill="currentColor" />
+      <ellipse cx="50" cy="22" rx="11" ry="11" fill="currentColor" />
+      <ellipse cx="32" cy="50" rx="8" ry="5" fill="currentColor" transform="rotate(-20 32 50)" />
+      <ellipse cx="68" cy="50" rx="8" ry="5" fill="currentColor" transform="rotate(20 68 50)" />
+      <path d="M55 80 Q70 90 65 100 Q58 92 52 85 Z" fill="currentColor" />
+      <ellipse cx="42" cy="18" rx="4" ry="7" fill="currentColor" transform="rotate(-15 42 18)" />
+      <ellipse cx="58" cy="18" rx="4" ry="7" fill="currentColor" transform="rotate(15 58 18)" />
+    </svg>
+  </div>
+
+  <!-- Pikachu izquierdo — artwork oficial PokéAPI -->
+  <div class="border-pokemon border-pikachu" aria-hidden="true">
+    <div class="poke-glow poke-glow-yellow"></div>
+    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png"
+      alt="Pikachu" class="poke-img poke-img-pikachu" draggable="false" />
+  </div>
+
+  <!-- Charizard derecho — artwork oficial PokéAPI -->
+  <div class="border-pokemon border-charizard" aria-hidden="true">
+    <div class="poke-glow poke-glow-orange"></div>
+    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png"
+      alt="Charizard" class="poke-img poke-img-charizard" draggable="false" />
+  </div>
+
+  <!-- Panel principal -->
+  <main class="main-panel">
+
+    <!-- Logo / Título -->
+    <div class="title-section">
+
+      <!-- Título estilo logo Pokémon -->
+      <div class="game-title-wrapper">
+        <div class="title-lightning left-bolt">⚡</div>
+        <h1 class="game-title notranslate" translate="no">
+          <span class="title-letter tl-t">T</span><span class="title-letter tl-e">E</span><span
+            class="title-letter tl-s">S</span><span class="title-letter tl-e2">E</span><span
+            class="title-letter tl-m">M</span><span class="title-letter tl-o">O</span><span
+            class="title-letter tl-n">N</span>
+        </h1>
+        <div class="title-lightning right-bolt">⚡</div>
+      </div>
+
+      <!-- Banda decorativa bajo el título -->
+      <div class="title-band">
+        <span class="band-dot"></span>
+        <span class="band-line"></span>
+        <div class="pokeball-logo">
+          <div class="pb-top"></div>
+          <div class="pb-middle">
+            <div class="pb-button"></div>
+          </div>
+          <div class="pb-bottom"></div>
+        </div>
+        <span class="band-line"></span>
+        <span class="band-dot"></span>
+      </div>
+
+      <h2 class="subtitle">⚔ Trading Card Game ⚔</h2>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-section">
+      <div class="pixel-spinner"></div>
+      <p class="loading-text">Cargando datos...</p>
+    </div>
+
+    <ng-container *ngIf="!loading">
+
+      <!-- Bienvenida -->
+      <div *ngIf="currentUser" class="welcome-box">
+        <span class="welcome-icon">🏆</span>
+        <div class="welcome-text">
+          <h3>¡Bienvenido, {{ username }}!</h3>
+          <p>¿Listo para tu siguiente batalla?</p>
+        </div>
+      </div>
+
+      <!-- Menú de botones -->
+      <nav class="menu-grid">
+
+        <!-- Modos de juego -->
+        <button class="menu-btn btn-pve" (click)="onNavigate('pve')">
+          <span class="btn-icon-wrap">⚡</span>
+          <span class="btn-label">VS Computadora</span>
+          <span class="btn-arrow">▶</span>
+        </button>
+
+        <button class="menu-btn btn-pvp" (click)="onNavigate('pvp')">
+          <span class="btn-icon-wrap">🌍</span>
+          <span class="btn-label">Jugar en Línea</span>
+          <span class="btn-arrow">▶</span>
+        </button>
+
+        <!-- Auth -->
+        <ng-container *ngIf="!currentUser">
+          <button class="menu-btn btn-login" (click)="onNavigate('login')">
+            <span class="btn-icon-wrap">👤</span>
+            <span class="btn-label">Iniciar Sesión</span>
+            <span class="btn-arrow">▶</span>
+          </button>
+          <button class="menu-btn btn-register" (click)="onNavigate('register')">
+            <span class="btn-icon-wrap">✨</span>
+            <span class="btn-label">Registrarse</span>
+            <span class="btn-arrow">▶</span>
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="currentUser">
+          <button class="menu-btn btn-logout" (click)="logout()">
+            <span class="btn-icon-wrap">🚪</span>
+            <span class="btn-label">Cerrar Sesión</span>
+            <span class="btn-arrow">▶</span>
+          </button>
+        </ng-container>
+
+        <!-- Extras -->
+        <button class="menu-btn btn-history" (click)="onNavigate('history')">
+          <span class="btn-icon-wrap">📊</span>
+          <span class="btn-label">Historial</span>
+          <span class="btn-arrow">▶</span>
+        </button>
+
+        <button class="menu-btn btn-collection" (click)="onNavigate('collection')">
+          <span class="btn-icon-wrap">🃏</span>
+          <span class="btn-label">Mi Colección</span>
+          <span class="btn-arrow">▶</span>
+        </button>
+
+      </nav>
+
+      <!-- Footer decorativo -->
+      <p class="footer-text">© TESEMON — Presiona START para comenzar</p>
+
+    </ng-container>
+  </main>
+</div>
